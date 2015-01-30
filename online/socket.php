@@ -12,7 +12,7 @@ foreach($player_files as $player_file) {
     $player_json = file_get_contents('players/'.$player_file);
     $player = json_decode($player_json);
     // Kick player (and remove file) if last update was more than 60 secs (?)
-    if ((time() - $player->update) > 60) {
+    if ((time() - $player->update) > 6000) {
       unlink('players/'.$player->id.'.json');
     }
     else {
@@ -21,18 +21,22 @@ foreach($player_files as $player_file) {
   }
 }
 
-$curr_player = new stdClass;
-$curr_player->id = $_POST['player_id'];
-$curr_player->x_coor = $_POST['player_x'];
-$curr_player->y_coor = $_POST['player_y'];
-$curr_player->update = time();
+if (!empty($_POST['player_id']) && !empty($_POST['player_x']) && !empty($_POST['player_y'])) {
 
-// For each player logged on, they get their own json file called player_id.json
-$fp = fopen('players/'.$curr_player->id.'.json', 'w');
-fwrite($fp, json_encode($curr_player));
-fclose($fp);
+  $curr_player = new stdClass;
+  $curr_player->id = $_POST['player_id'];
+  $curr_player->x_coor = $_POST['player_x'];
+  $curr_player->y_coor = $_POST['player_y'];
+  $curr_player->update = time();
 
-$map_data[$curr_player->id] = $curr_player;
+  // For each player logged on, they get their own json file called player_id.json
+  $fp = fopen('players/'.$curr_player->id.'.json', 'w');
+  fwrite($fp, json_encode($curr_player));
+  fclose($fp);
+
+  $map_data[$curr_player->id] = $curr_player;
+
+}
 
 echo json_encode($map_data);
 
